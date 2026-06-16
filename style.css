@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-title: 'Space Grotesk', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+
+  /* Theme Colors */
+  --bg-primary: #0D1117;
+  --panel-bg: rgba(15, 23, 42, 0.75);
+  --panel-border: rgba(30, 58, 95, 0.4);
+  
+  /* Municipality Accent Colors */
+  --color-funza: #10B981;       /* Emerald Green */
+  --color-mosquera: #F59E0B;    /* Amber Gold */
+  --color-madrid: #EF4444;      /* Crimson Red */
+  
+  /* Tech Accents */
+  --color-neon-green: #00FF87;  /* High-tech Emerald */
+  --color-neon-blue: #00E5FF;   /* Cyber Cyan */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0D1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E3A5F;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-funza);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: #F8FAFC;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .tech-font {
+  font-family: var(--font-title);
+  letter-spacing: -0.025em;
+}
+
+/* Dynamic Video Background Styling */
+#bg-video-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -20;
+  overflow: hidden;
+}
+
+#bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.08; /* Extremely discrete as requested */
+  filter: contrast(120%) brightness(80%) grayscale(20%);
+}
+
+#video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at 50% 50%, rgba(13, 17, 23, 0.3) 0%, rgba(13, 17, 23, 0.95) 90%),
+              linear-gradient(rgba(13, 17, 23, 0.5) 0%, rgba(13, 17, 23, 0.9) 100%);
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Cyber Blueprint Grid Pattern */
+.urban-grid {
+  background-image: 
+    linear-gradient(rgba(30, 58, 95, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 58, 95, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+}
+
+/* Glassmorphism Tactical Panels */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(30, 58, 95, 0.7);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), 
+              0 0 15px rgba(30, 58, 95, 0.1);
+}
+
+/* Municipality-Specific Glowing Classes */
+.glow-funza {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.1), inset 0 0 10px rgba(16, 185, 129, 0.05);
+}
+.glow-funza:hover {
+  border-color: var(--color-funza);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.35), inset 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+.glow-mosquera {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.1), inset 0 0 10px rgba(245, 158, 11, 0.05);
+}
+.glow-mosquera:hover {
+  border-color: var(--color-mosquera);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.35), inset 0 0 15px rgba(245, 158, 11, 0.1);
+}
+
+.glow-madrid {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.1), inset 0 0 10px rgba(239, 68, 68, 0.05);
+}
+.glow-madrid:hover {
+  border-color: var(--color-madrid);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.35), inset 0 0 15px rgba(239, 68, 68, 0.1);
+}
+
+/* Green Neon Highlighting Style */
+.neon-green-text {
+  color: var(--color-neon-green);
+  text-shadow: 0 0 10px rgba(0, 255, 135, 0.5);
+}
+
+.neon-green-glow {
+  border-color: rgba(0, 255, 135, 0.4);
+  box-shadow: 0 0 12px rgba(0, 255, 135, 0.15);
+}
+
+.neon-green-glow:hover, .neon-green-glow.active {
+  border-color: var(--color-neon-green);
+  box-shadow: 0 0 20px rgba(0, 255, 135, 0.4);
+}
+
+/* Map Interactions and Styles */
+.map-municipality {
+  cursor: pointer;
+  transition: all 0.4s ease;
+  stroke-width: 2;
+  fill-opacity: 0.15;
+}
+
+.map-municipality:hover {
+  fill-opacity: 0.4;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.map-municipality.active {
+  fill-opacity: 0.5;
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 12px currentColor);
+}
+
+/* Hologram street lines */
+.map-road-network {
+  stroke: rgba(0, 229, 255, 0.15);
+  stroke-width: 0.75;
+  fill: none;
+  stroke-dasharray: 2, 4;
+  animation: road-flow 45s linear infinite;
+}
+
+@keyframes road-flow {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* Pulse animation for map pins */
+.pulse-pin {
+  animation: radar-pulse 2s infinite ease-out;
+  transform-origin: center;
+}
+
+@keyframes radar-pulse {
+  0% {
+    r: 4px;
+    opacity: 1;
+    stroke-width: 1px;
+  }
+  100% {
+    r: 20px;
+    opacity: 0;
+    stroke-width: 2px;
+  }
+}
+
+/* Sparkline Glow Effects */
+.chart-container-glow {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+}
+
+/* Slide in animations for tabs */
+.fade-in {
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer Scanning Line Overlay */
+.scan-line {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, var(--color-neon-green), transparent);
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: scanning 8s linear infinite;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+@keyframes scanning {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+/* Custom Leaflet Map Theme styling */
+.leaflet-container {
+  background: #0d1117 !important;
+  font-family: var(--font-body) !important;
+}
+
+.leaflet-bar {
+  border: 1px solid var(--panel-border) !important;
+  box-shadow: none !important;
+}
+
+.leaflet-bar a {
+  background-color: var(--panel-bg) !important;
+  color: #fff !important;
+  border-bottom: 1px solid var(--panel-border) !important;
+  transition: all 0.2s ease;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--color-funza) !important;
+  color: #0d1117 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--panel-bg) !important;
+  color: #f8fafc !important;
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 8px !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border);
+}
+
+.leaflet-div-icon-pulse {
+  background: transparent;
+  border: none;
+}

@@ -1,0 +1,10 @@
+# Prevent uploading unnecessary files to Vercel
+analisis_seguridad_municipios_clustering.ipynb
+temp_cells.txt
+.git
+.github
+.gemini
+.system_generated
+.idea
+.vscode
+*.log

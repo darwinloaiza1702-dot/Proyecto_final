@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguridad Ciudadana | Sabana Occidente</title>
+  <meta name="description" content="Plataforma interactiva de visualización geoespacial e inteligencia artificial para el análisis y la prevención de delitos en Funza, Mosquera y Madrid (Sabana Occidente, Cundinamarca).">
+  <meta name="keywords" content="seguridad ciudadana, sabana occidente, funza, mosquera, madrid, inteligencia artificial, random forest, clustering jerarquico, delincuencia, analitica de datos">
+  <meta name="author" content="SENA Cundinamarca">
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Seguridad Ciudadana | Sabana Occidente">
+  <meta property="og:description" content="Análisis de delincuencia y modelos predictivos de IA para municipios de la Sabana de Occidente.">
+  <meta property="og:image" content="https://repository-images.githubusercontent.com/metadata-placeholder.png">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom CSS for Design Tokens & Animations -->
+  <link rel="stylesheet" href="style.css">
+  <!-- ApexCharts CDN for Premium Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <!-- Leaflet CSS for Real Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Lucide Icons for Cyberpunk Outlines -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyberDark: '#0D1117',
+            navyDark: '#0F172A',
+            navyTech: '#1E3A5F',
+            funzaGreen: '#10B981',
+            mosqueraAmber: '#F59E0B',
+            madridRed: '#EF4444',
+            neonGreen: '#00FF87',
+            neonBlue: '#00E5FF'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="h-full flex overflow-hidden urban-grid bg-cyberDark">
+
+  <!-- Background Video Container -->
+  <div id="bg-video-container">
+    <video id="bg-video" autoplay loop muted playsinline>
+      <source src="flowing-dots.3840x2160.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div id="video-overlay"></div>
+  </div>
+
+  <!-- Sidebar Menu (Clean Unified Navigation) -->
+  <aside class="w-64 h-full glass-panel border-r border-navyTech flex flex-col justify-between p-6 z-30 relative">
+    <div>
+      <!-- Brand Logo & Header -->
+      <div class="flex items-center space-x-3 mb-8 pb-4 border-b border-navyTech">
+        <div class="p-2 rounded-lg bg-funzaGreen/10 border border-funzaGreen/30">
+          <i data-lucide="shield-check" class="w-6 h-6 text-neonGreen"></i>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold tracking-wider uppercase text-white">INTEGRACIÓN IA</h2>
+          <span class="text-xs text-funzaGreen font-medium">Sabana Occidente</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (5 Views) -->
+      <nav class="space-y-2">
+        <button onclick="switchView('view-inicio')" id="btn-view-inicio" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all font-medium active-tab text-left">
+          <i data-lucide="home" class="w-5 h-5"></i>
+          <span>Inicio</span>
+        </button>
+
+        <button onclick="switchView('view-consola')" id="btn-view-consola" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all font-medium text-left">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          <span>Consola Monitoreo</span>
+        </button>
+
+        <button onclick="switchView('view-modelos')" id="btn-view-modelos" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all font-medium text-left">
+          <i data-lucide="binary" class="w-5 h-5"></i>
+          <span>Modelos IA & Analítica</span>
+        </button>
+
+        <button onclick="switchView('view-calculadora')" id="btn-view-calculadora" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all font-medium text-left">
+          <i data-lucide="fingerprint" class="w-5 h-5"></i>
+          <span>Calculadora Riesgo</span>
+        </button>
+
+        <button onclick="switchView('view-documentacion')" id="btn-view-documentacion" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all font-medium text-left">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+          <span>Documentación</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Sidebar Footer (Academic Info) -->
+    <div class="pt-4 border-t border-navyTech">
+      <div class="flex items-center space-x-2 text-xs text-slate-400">
+        <i data-lucide="award" class="w-4 h-4 text-funzaGreen"></i>
+        <span>SENA · Inv. Seguridad</span>
+      </div>
+      <div class="mt-1 text-[10px] text-slate-500 font-mono">PROYECTO V-2025</div>
+    </div>
+  </aside>
+
+  <!-- Main View Container -->
+  <main class="flex-1 h-full overflow-y-auto p-8 z-10 relative">
+    
+    <!-- VIEW 1: INICIO (HERO) -->
+    <section id="view-inicio" class="fade-in min-h-[85vh] flex flex-col justify-center items-center text-center">
+      <div class="max-w-3xl glass-panel p-12 rounded-2xl border border-navyTech relative overflow-hidden">
+        <div class="scan-line"></div>
+        <div class="mb-6 inline-flex p-4 rounded-full bg-funzaGreen/10 border border-funzaGreen/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+          <i data-lucide="radar" class="w-12 h-12 text-neonGreen animate-pulse"></i>
+        </div>
+        <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-4">
+          SEGURIDAD CIUDADANA
+        </h1>
+        <p class="text-lg md:text-xl text-neonGreen font-semibold tracking-widest uppercase mb-6">
+          Análisis Inteligente de Delitos
+        </p>
+        <p class="text-slate-300 max-w-xl mx-auto mb-8 font-light leading-relaxed">
+          Plataforma de visualización geoespacial e inteligencia artificial para la prevención del delito en <span class="font-semibold text-white">Funza</span>, <span class="font-semibold text-white">Mosquera</span> y <span class="font-semibold text-white">Madrid</span> (Sabana Occidente, Cundinamarca, Colombia).
+        </p>
+        <div>
+          <button onclick="switchView('view-consola')" class="neon-green-glow active bg-cyberDark text-white px-8 py-4 rounded-lg font-bold tracking-wider uppercase transition-all flex items-center space-x-2 mx-auto">
+            <span>Explorar Consola</span>
+            <i data-lucide="arrow-right" class="w-5 h-5 text-neonGreen"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: CONSOLA DE SEGURIDAD (KPIs + MAPA) -->
+    <section id="view-consola" class="fade-in space-y-6 hidden">
+      <!-- Top Overview Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Card 1: Total Delitos -->
+        <div class="glass-panel p-4 rounded-xl flex items-center space-x-4">
+          <div class="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-mono uppercase">Histórico Total</p>
+            <h3 class="text-2xl font-bold text-white tracking-tight">4,912</h3>
+            <span class="text-[10px] text-slate-500 font-mono">Casos (2023-2025)</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Tendencia -->
+        <div class="glass-panel p-4 rounded-xl flex items-center space-x-4">
+          <div class="p-3 rounded-lg bg-funzaGreen/10 border border-funzaGreen/20 text-funzaGreen">
+            <i data-lucide="trending-down" class="w-6 h-6 text-neonGreen"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-mono uppercase">Tendencia</p>
+            <h3 class="text-2xl font-bold text-white tracking-tight">-12.4%</h3>
+            <span class="text-[10px] text-neonGreen font-mono font-semibold">Descenso General</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Predicción IA -->
+        <div class="glass-panel p-4 rounded-xl flex items-center space-x-4">
+          <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+            <i data-lucide="cpu" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-mono uppercase">Predicción Mes</p>
+            <h3 class="text-2xl font-bold text-white tracking-tight">114</h3>
+            <span class="text-[10px] text-slate-500 font-mono">Estimación (Random Forest)</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Municipios Analizados -->
+        <div class="glass-panel p-4 rounded-xl flex items-center space-x-4">
+          <div class="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400">
+            <i data-lucide="map" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-mono uppercase">Municipios</p>
+            <h3 class="text-2xl font-bold text-white tracking-tight">3</h3>
+            <span class="text-[10px] text-slate-500 font-mono">S. Occidente</span>
+          </div>
+        </div>
+
+        <!-- Card 5: Año Analizado -->
+        <div class="glass-panel p-4 rounded-xl flex items-center space-x-4">
+          <div class="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+            <i data-lucide="calendar" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-mono uppercase">Año de Predicción</p>
+            <h3 class="text-2xl font-bold text-white tracking-tight">2026</h3>
+            <span class="text-[10px] text-slate-500 font-mono">Proyección Activa</span>
+          </div>
+        </div>
+
+        <!-- Card 6: Nivel de Riesgo Activo -->
+        <div class="glass-panel p-4 rounded-xl flex items-center space-x-4 border-l-2 border-l-funzaGreen shadow-[0_0_15px_rgba(16,185,129,0.05)]" id="active-risk-card">
+          <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400" id="active-risk-icon-container">
+            <i data-lucide="alert-triangle" class="w-6 h-6" id="active-risk-icon"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-mono uppercase">Riesgo General</p>
+            <h3 class="text-2xl font-bold text-white tracking-tight" id="active-risk-label">MEDIO</h3>
+            <span class="text-[10px] text-slate-500 font-mono" id="active-risk-sub">Clúster 1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map & Details layout Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Cyber Map Control Panel (Takes 2 columns) -->
+        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between min-h-[500px]">
+          <div class="scan-line"></div>
+          <!-- Map Header Control -->
+          <div class="flex items-center justify-between mb-4 border-b border-navyTech pb-4">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="map-pin" class="w-5 h-5 text-neonGreen"></i>
+              <span class="font-bold text-sm tracking-wider uppercase text-white">Centro de Inteligencia Territorial</span>
+            </div>
+            <!-- Interactive Map Indicators -->
+            <div class="flex items-center space-x-4 text-xs font-mono">
+              <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-funzaGreen mr-1.5 animate-pulse"></span> Funza</span>
+              <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-mosqueraAmber mr-1.5 animate-pulse"></span> Mosquera</span>
+              <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-madridRed mr-1.5 animate-pulse"></span> Madrid</span>
+            </div>
+          </div>
+
+          <!-- Interactive Real Map Canvas -->
+          <div class="flex-1 w-full p-2 h-[380px] min-h-[380px]">
+            <div id="leaflet-map" class="w-full h-full rounded-xl border border-navyTech z-10 shadow-[0_0_20px_rgba(30,58,95,0.2)]"></div>
+          </div>
+          
+          <div class="mt-4 text-xs text-slate-500 font-mono text-center flex items-center justify-center space-x-2">
+            <i data-lucide="info" class="w-4 h-4 text-funzaGreen"></i>
+            <span>Haz clic en los marcadores de municipio en el mapa real para consultar estadísticas detalladas.</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Municipality Info Widget (1 column) -->
+        <div id="muni-details-card" class="glass-panel p-6 rounded-2xl border border-navyTech flex flex-col justify-between transition-all">
+          <div>
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-navyTech mb-4">
+              <span id="muni-tag" class="px-2 py-1 text-[10px] font-mono font-bold tracking-widest text-white rounded bg-funzaGreen uppercase">S. Occidente</span>
+              <span class="text-xs text-slate-400 font-mono uppercase">Detalle Regional</span>
+            </div>
+
+            <!-- Title & Basic Info -->
+            <h2 id="muni-name" class="text-3xl font-extrabold text-white tracking-tight uppercase mb-2">FUNZA</h2>
+            <div class="flex space-x-6 text-sm text-slate-300 font-light mb-6">
+              <div>
+                <p class="text-xs text-slate-500">Población (Est)</p>
+                <p id="muni-pop" class="font-medium text-white font-mono">~98,000 hab</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Área Geográfica</p>
+                <p id="muni-area" class="font-medium text-white font-mono">70 km²</p>
+              </div>
+            </div>
+
+            <!-- Crime Metrics -->
+            <div class="space-y-4">
+              <div class="p-3 bg-cyberDark/50 rounded-lg border border-navyTech">
+                <span class="text-[10px] text-slate-500 uppercase font-mono block">Delito de Mayor Frecuencia</span>
+                <p id="muni-main-crime" class="text-sm font-semibold text-white mt-1">Hurto Personas</p>
+                <span id="muni-main-crime-pct" class="text-xs text-neonGreen font-semibold">62.3% del volumen total</span>
+              </div>
+
+              <div class="p-3 bg-cyberDark/50 rounded-lg border border-navyTech">
+                <span class="text-[10px] text-slate-500 uppercase font-mono block">Historial Total Analizado</span>
+                <p id="muni-total-cases" class="text-sm font-semibold text-white mt-1 font-mono">1,824 delitos</p>
+                <span class="text-xs text-slate-400">Datos históricos 2023 - 2026</span>
+              </div>
+
+              <div class="p-3 bg-cyberDark/50 rounded-lg border border-navyTech">
+                <span class="text-[10px] text-slate-500 uppercase font-mono block">Estado de Alerta IA</span>
+                <div class="flex items-center space-x-2 mt-1">
+                  <span id="muni-risk-indicator" class="w-3 h-3 rounded-full bg-funzaGreen animate-ping"></span>
+                  <p id="muni-risk-label" class="text-sm font-bold text-white uppercase tracking-wider">RIESGO BAJO</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Button -->
+          <div class="mt-6 pt-4 border-t border-navyTech">
+            <button onclick="switchView('view-calculadora'); setCalculatorMunicipality()" class="w-full py-3 bg-funzaGreen/10 border border-funzaGreen/30 text-neonGreen hover:bg-funzaGreen/20 rounded-lg font-bold tracking-wider uppercase text-xs transition-all flex items-center justify-center space-x-2">
+              <i data-lucide="fingerprint" class="w-4 h-4"></i>
+              <span>Calcular Mi Riesgo</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: MODELOS IA & ANALÍTICA (CHARTS) -->
+    <section id="view-modelos" class="fade-in space-y-6 hidden">
+      <!-- Top info bar -->
+      <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center border border-navyTech space-y-4 md:space-y-0">
+        <div>
+          <h2 class="text-2xl font-extrabold text-white tracking-tight">Modelos Predictivos & Algoritmos</h2>
+          <p class="text-sm text-slate-300 font-light">
+            Métricas de precisión y variables influyentes según el modelo de regresión <span class="text-neonGreen font-semibold">Random Forest Regressor</span> (R² ≈ 0.97) y Clustering Jerárquico.
+          </p>
+        </div>
+        <div class="flex space-x-4">
+          <div class="p-3 bg-cyberDark/50 rounded-lg border border-navyTech text-center">
+            <span class="text-[10px] text-slate-500 uppercase font-mono block">R² Score</span>
+            <span class="text-sm font-bold text-neonGreen font-mono">0.9685</span>
+          </div>
+          <div class="p-3 bg-cyberDark/50 rounded-lg border border-navyTech text-center">
+            <span class="text-[10px] text-slate-500 uppercase font-mono block">Clústeres Jerárquicos</span>
+            <span class="text-sm font-bold text-neonBlue font-mono">3 Niveles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulador Predictivo IA -->
+      <div class="glass-panel p-6 rounded-2xl border border-navyTech relative overflow-hidden">
+        <div class="scan-line"></div>
+        <div class="flex items-center space-x-2 mb-4 pb-3 border-b border-navyTech">
+          <i data-lucide="brain-circuit" class="w-6 h-6 text-neonGreen"></i>
+          <h3 class="text-lg font-bold text-white tracking-wider uppercase">Simulador de Predicción Mensual IA (Random Forest + Clustering Jerárquico)</h3>
+        </div>
+        
+        <p class="text-xs text-slate-300 font-light mb-6">
+          Ejecuta la predicción del volumen mensual de incidentes utilizando el modelo supervisado <strong>Random Forest Regressor</strong> y clasifica automáticamente el nivel de riesgo en su respectivo clúster <strong>Jerárquico</strong>.
+        </p>
+
+        <!-- Predictor Form & Results layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Inputs (1 column) -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Municipio</label>
+              <select id="pred-municipio" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all">
+                <option value="Funza">Funza</option>
+                <option value="Madrid">Madrid</option>
+                <option value="Mosquera">Mosquera</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Tipo de Delito</label>
+              <select id="pred-delito" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all font-mono text-xs">
+                <option value="Todos" selected>Todos los delitos</option>
+                <option value="Hurto Personas">Hurto Personas</option>
+                <option value="Hurto Residencias">Hurto Residencias</option>
+                <option value="Hurto Comercios">Hurto Comercios</option>
+                <option value="Hurto Motocicletas">Hurto Motocicletas</option>
+                <option value="Hurto Automotores">Hurto Automotores</option>
+                <option value="Homicidio">Homicidio</option>
+                <option value="Amenazas">Amenazas</option>
+                <option value="Extorsion">Extorsion</option>
+                <option value="Acoso Sexual">Acoso Sexual</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Año</label>
+                <input type="number" id="pred-anio" value="2026" min="2020" max="2100" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all font-mono" />
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Mes</label>
+                <select id="pred-mes" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all">
+                  <option value="1">Enero</option>
+                  <option value="2">Febrero</option>
+                  <option value="3">Marzo</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Mayo</option>
+                  <option value="6">Junio</option>
+                  <option value="7">Julio</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+              </div>
+            </div>
+            <div class="pt-2">
+              <button onclick="predictCrimesRF()" class="w-full py-3.5 bg-funzaGreen hover:bg-funzaGreen/90 text-white font-bold tracking-widest uppercase text-xs rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center space-x-2">
+                <i data-lucide="play" class="w-4 h-4"></i>
+                <span>Ejecutar Modelo IA</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Output Panel (2 columns) -->
+          <div class="lg:col-span-2 p-5 bg-cyberDark/60 rounded-xl border border-navyTech flex flex-col justify-between min-h-[240px]">
+            <!-- Empty state -->
+            <div id="pred-empty" class="flex-grow flex flex-col items-center justify-center text-center p-4">
+              <i data-lucide="cpu" class="w-10 h-10 text-slate-500 mb-2 animate-pulse"></i>
+              <h4 class="text-xs font-bold text-white uppercase tracking-wider">Listo para Predicción</h4>
+              <p class="text-[11px] text-slate-400 max-w-xs mt-1">Configura los parámetros temporales y geográficos y haz clic en "Ejecutar Modelo IA" para proyectar la criminalidad.</p>
+            </div>
+
+            <!-- Result state -->
+            <div id="pred-result" class="hidden flex-grow flex flex-col justify-between space-y-4">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-navyTech pb-2">
+                <div>
+                  <span class="text-[10px] text-neonGreen font-semibold uppercase tracking-widest font-mono">Resultado Random Forest Regressor</span>
+                  <h4 id="pred-result-title" class="text-sm font-extrabold text-white tracking-tight mt-0.5 uppercase">Predicción Funza - Diciembre 2026</h4>
+                </div>
+                <!-- Cluster Badge -->
+                <div class="mt-2 sm:mt-0 flex items-center space-x-2 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded text-xs" id="pred-cluster-badge">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" id="pred-cluster-ping"></span>
+                  <span class="font-bold text-white uppercase tracking-wider font-mono" id="pred-cluster-label">RIESGO ALTO</span>
+                </div>
+              </div>
+
+              <!-- Two column results grid -->
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                <!-- Metrics & Summary (3 columns) -->
+                <div class="md:col-span-3 space-y-3">
+                  <!-- Metrics Summary -->
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="p-2.5 bg-navyDark/40 rounded border border-navyTech text-center">
+                      <span class="text-[8px] text-slate-500 uppercase font-mono block">Incidentes Estimados</span>
+                      <span id="pred-total" class="text-lg font-bold text-white font-mono">134</span>
+                      <span class="text-[8px] text-slate-400 block mt-0.5">Casos</span>
+                    </div>
+                    <div class="p-2.5 bg-navyDark/40 rounded border border-navyTech text-center">
+                      <span class="text-[8px] text-slate-500 uppercase font-mono block font-semibold">Confianza</span>
+                      <span id="pred-confianza" class="text-lg font-bold text-neonGreen font-mono">96.85%</span>
+                      <span class="text-[8px] text-slate-400 block mt-0.5">R² Score</span>
+                    </div>
+                    <div class="p-2.5 bg-navyDark/40 rounded border border-navyTech text-center">
+                      <span class="text-[8px] text-slate-500 uppercase font-mono block">Clúster Jerárquico</span>
+                      <span id="pred-cluster-sub" class="text-lg font-bold text-neonBlue font-mono">Clúster 2</span>
+                      <span class="text-[8px] text-slate-400 block mt-0.5">Asignación</span>
+                    </div>
+                  </div>
+
+                  <!-- Top Crime Share Info -->
+                  <div class="text-[11px] text-slate-300 font-light flex items-center space-x-2 p-2 bg-cyberDark/40 rounded border border-navyTech">
+                    <i data-lucide="shield-alert" class="w-4 h-4 text-neonGreen flex-shrink-0"></i>
+                    <span>El principal delito estimado es <strong id="pred-crime-name" class="text-white">Hurto Personas</strong> con <strong id="pred-crime-val" class="text-white">78</strong> incidentes.</span>
+                  </div>
+                </div>
+
+                <!-- Prediction Specific Pie/Donut Chart (2 columns) -->
+                <div class="md:col-span-2 h-44 flex items-center justify-center bg-navyDark/20 rounded border border-navyTech p-1 relative">
+                  <div id="chart-pred-typology" class="w-full h-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph grids -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Graph 1: Series Temporales -->
+        <div class="glass-panel p-6 rounded-2xl border border-navyTech relative">
+          <h3 class="text-sm font-bold tracking-wider uppercase text-white mb-4 flex items-center space-x-2">
+            <i data-lucide="activity" class="w-4 h-4 text-neonGreen"></i>
+            <span>Histórico Temporal de Incidentes (2023 - 2026)</span>
+          </h3>
+          <div id="chart-timeseries" class="h-64"></div>
+        </div>
+
+        <!-- Graph 2: Crime typology distribution -->
+        <div class="glass-panel p-6 rounded-2xl border border-navyTech relative">
+          <h3 class="text-sm font-bold tracking-wider uppercase text-white mb-4 flex items-center space-x-2">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-neonGreen"></i>
+            <span>Distribución de Delitos por Municipio</span>
+          </h3>
+          <div id="chart-distribution" class="h-64"></div>
+        </div>
+
+        <!-- Graph 3: Feature Importance -->
+        <div class="glass-panel p-6 rounded-2xl border border-navyTech relative">
+          <h3 class="text-sm font-bold tracking-wider uppercase text-white mb-4 flex items-center space-x-2">
+            <i data-lucide="sliders" class="w-4 h-4 text-neonGreen"></i>
+            <span>Importancia de Variables (Feature Importance)</span>
+          </h3>
+          <div id="chart-importance" class="h-64"></div>
+        </div>
+
+        <!-- Graph 4: Hierarchical Clustering Plot -->
+        <div class="glass-panel p-6 rounded-2xl border border-navyTech relative">
+          <h3 class="text-sm font-bold tracking-wider uppercase text-white mb-4 flex items-center space-x-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-neonGreen"></i>
+            <span>Clustering Jerárquico (Grupos de Riesgo)</span>
+          </h3>
+          <div id="chart-clustering" class="h-64"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: CALCULADORA DE RIESGO E INTERACTIVA -->
+    <section id="view-calculadora" class="fade-in space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Input Form Panel (1 column) -->
+        <div class="glass-panel p-6 rounded-2xl border border-navyTech flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-2 mb-6 pb-3 border-b border-navyTech">
+              <i data-lucide="shield-alert" class="w-6 h-6 text-neonGreen"></i>
+              <h2 class="text-lg font-bold text-white tracking-wider uppercase">Vulnerabilidad Ciudadana</h2>
+            </div>
+            
+            <p class="text-xs text-slate-300 font-light mb-6">
+              Elige tu perfil demográfico y sector de Sabana Occidente. La calculadora contrastará los patrones del dataset para estimar tus principales vulnerabilidades y aconsejarte.
+            </p>
+
+            <!-- Interactive Inputs Form -->
+            <form id="risk-form" class="space-y-4" onsubmit="event.preventDefault(); calculateUserRisk();">
+              <!-- Municipality Selector -->
+              <div>
+                <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Municipio</label>
+                <select id="calc-municipio" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all">
+                  <option value="Funza">Funza</option>
+                  <option value="Madrid">Madrid</option>
+                  <option value="Mosquera">Mosquera</option>
+                </select>
+              </div>
+
+              <!-- Gender Selector -->
+              <div>
+                <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Género</label>
+                <select id="calc-genero" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all">
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
+                </select>
+              </div>
+
+              <!-- Age Group Selector -->
+              <div>
+                <label class="block text-[10px] uppercase font-mono tracking-widest text-slate-400 mb-1.5 font-semibold">Grupo de Edad</label>
+                <select id="calc-edad" class="w-full px-4 py-3 rounded-lg bg-cyberDark border border-navyTech text-white focus:outline-none focus:border-funzaGreen transition-all">
+                  <option value="Adultos">Adultos</option>
+                  <option value="Adolescentes">Adolescentes</option>
+                  <option value="Menores">Menores (Infantes)</option>
+                </select>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="pt-4">
+                <button type="submit" class="w-full py-4 bg-funzaGreen text-white font-bold tracking-widest uppercase text-xs rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center space-x-2">
+                  <i data-lucide="calculator" class="w-4 h-4"></i>
+                  <span>Calcular Perfil</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="mt-6 text-[10px] text-slate-500 font-mono text-center">
+            Módulo interactivo basado en la Sección 13 del Notebook de Análisis.
+          </div>
+        </div>
+
+        <!-- Output Result Panel (2 columns) -->
+        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-navyTech relative overflow-hidden flex flex-col justify-between min-h-[480px]">
+          <div class="scan-line"></div>
+          
+          <!-- Default empty state container -->
+          <div id="calc-empty-state" class="flex-1 flex flex-col items-center justify-center text-center p-8">
+            <div class="p-4 rounded-full bg-slate-800/50 border border-slate-700/30 text-slate-500 mb-4 animate-pulse">
+              <i data-lucide="radar" class="w-12 h-12"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white tracking-wide mb-1 uppercase">Esperando datos</h3>
+            <p class="text-xs text-slate-400 font-light max-w-xs leading-relaxed">
+              Ingresa los parámetros demográficos del formulario a tu izquierda y haz clic en calcular para realizar la simulación del perfil de riesgo.
+            </p>
+          </div>
+
+          <!-- Result Container (hidden by default) -->
+          <div id="calc-result-state" class="hidden flex-1 flex flex-col justify-between">
+            <div>
+              <!-- Header info -->
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-navyTech pb-4 mb-6">
+                <div>
+                  <span class="text-xs text-neonGreen font-semibold uppercase tracking-widest font-mono">Simulación de Vulnerabilidad Completa</span>
+                  <h2 id="result-profile-title" class="text-xl font-extrabold text-white tracking-tight mt-1 uppercase">Perfil: FUNZA | FEMENINO | ADULTOS</h2>
+                </div>
+                <div class="mt-4 md:mt-0 flex items-center space-x-4 bg-cyberDark/50 p-2.5 rounded-lg border border-navyTech">
+                  <div>
+                    <span class="text-[9px] text-slate-500 uppercase font-mono block">Casos Históricos Analizados</span>
+                    <span id="result-total-cases" class="text-xs font-bold text-white font-mono">132 delitos</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Main metric gauge & bar chart grid -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                
+                <!-- Main Threat Callout Card -->
+                <div class="md:col-span-1 p-5 bg-cyberDark/50 rounded-xl border border-navyTech flex flex-col justify-between items-center text-center">
+                  <div class="mb-3 text-[10px] text-slate-500 font-mono uppercase">Delito de Mayor Riesgo</div>
+                  <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mb-3">
+                    <i data-lucide="alert-octagon" class="w-8 h-8"></i>
+                  </div>
+                  <h4 id="result-main-crime" class="text-lg font-bold text-white tracking-tight uppercase">Hurto Personas</h4>
+                  <div id="result-risk-pct" class="text-3xl font-extrabold text-red-400 mt-2 font-mono">72.0%</div>
+                  <span class="text-[10px] text-slate-400">Probabilidad de Exposición</span>
+                </div>
+
+                <!-- Complete Breakdown Bars list -->
+                <div class="md:col-span-2 p-5 bg-cyberDark/50 rounded-xl border border-navyTech flex flex-col justify-between">
+                  <div class="text-[10px] text-slate-500 font-mono uppercase mb-4">Distribución Completa de Riesgo Histórico</div>
+                  
+                  <div id="calc-bars-container" class="space-y-3">
+                    <!-- Progress Bar Component 1 -->
+                    <div>
+                      <div class="flex justify-between text-xs font-mono text-slate-300 mb-1">
+                        <span>Hurto Personas</span>
+                        <span class="font-bold text-white">72.0%</span>
+                      </div>
+                      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div class="bg-red-500 h-full rounded-full" style="width: 72%"></div>
+                      </div>
+                    </div>
+                    <!-- Remaining components will be injected dynamically -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tactical Recommendation Card -->
+              <div class="p-4 bg-funzaGreen/10 border border-funzaGreen/30 rounded-xl flex items-start space-x-3 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+                <div class="p-2 bg-funzaGreen/20 border border-funzaGreen/40 rounded-lg text-neonGreen mt-0.5">
+                  <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Medida de Autoprotección Recomendada</h4>
+                  <p id="result-recommendation" class="text-xs text-slate-300 leading-relaxed font-light">
+                    Mantén tus pertenencias de valor en bolsillos internos y evita usar el teléfono móvil en zonas de alta aglomeración de transporte público o parques principales.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Dynamic PDF / Alert printing -->
+            <div class="mt-6 pt-4 border-t border-navyTech flex justify-between items-center text-xs">
+              <span class="text-slate-500 font-mono">Consola Predictiva Territorial - IA</span>
+              <button onclick="window.print()" class="text-slate-400 hover:text-neonGreen flex items-center space-x-1 transition-all">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Imprimir Reporte</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: DOCUMENTACIÓN (ACADÉMICA / PROYECTO) -->
+    <section id="view-documentacion" class="fade-in space-y-6 hidden">
+      <div class="max-w-4xl mx-auto glass-panel p-8 rounded-2xl border border-navyTech relative overflow-hidden">
+        <div class="scan-line"></div>
+        
+        <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2 uppercase flex items-center space-x-3">
+          <i data-lucide="info" class="w-8 h-8 text-neonGreen"></i>
+          <span>Metodología & Documentación de Modelos</span>
+        </h2>
+        <p class="text-slate-400 text-sm font-light mb-6">
+          Fundamento académico e investigativo para el sistema predictivo de Sabana Occidente (Funza, Mosquera y Madrid).
+        </p>
+
+        <!-- Dynamic Carousel Structure -->
+        <div class="space-y-6">
+          <div class="p-6 bg-cyberDark/60 rounded-xl border border-navyTech">
+            <h3 class="text-base font-bold text-neonGreen uppercase tracking-widest mb-3">Modelado Supervisado: Random Forest Regressor</h3>
+            <p class="text-xs text-slate-300 font-light leading-relaxed mb-4">
+              El modelado supervisado predice de forma cuantitativa la cantidad mensual de incidentes para cada tipo de delito. Utiliza el algoritmo <strong>Random Forest Regressor</strong> que genera conjuntos de árboles de decisión para mitigar el sobreajuste y modelar interacciones no lineales entre el tiempo, las ubicaciones espaciales y los perfiles de los ciudadanos.
+            </p>
+            <ul class="text-xs text-slate-400 space-y-2 list-disc list-inside font-mono">
+              <li>Variables de Entrada (Features): Trimestre, Día de la Semana, Año, Municipio, Género y Tipo de Delito.</li>
+              <li>Métrica de Desempeño: Coeficiente de determinación R² de aproximación de <strong>96.85%</strong> en el set de pruebas (Random Forest).</li>
+              <li>Ajuste Estacional: Codificación mediante variables de tiempo periódicas para mitigar desfases anuales.</li>
+            </ul>
+          </div>
+
+          <div class="p-6 bg-cyberDark/60 rounded-xl border border-navyTech">
+            <h3 class="text-base font-bold text-neonBlue uppercase tracking-widest mb-3">Agrupamiento No Supervisado: Clustering Jerárquico Aglomerativo</h3>
+            <p class="text-xs text-slate-300 font-light leading-relaxed mb-4">
+              El agrupamiento agrupa de forma natural los meses basándose en el nivel delictivo. Utilizando <strong>Clustering Jerárquico Aglomerativo</strong>, el algoritmo identifica tres perfiles clave de vulnerabilidad territorial:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+              <div class="p-3 rounded bg-funzaGreen/10 border border-funzaGreen/20 text-center">
+                <span class="font-bold text-white block">Riesgo Bajo (Clúster 0)</span>
+                <span class="text-slate-400 text-[10px]">Meses con baja presencia delictiva histórica.</span>
+              </div>
+              <div class="p-3 rounded bg-mosqueraAmber/10 border border-mosqueraAmber/20 text-center">
+                <span class="font-bold text-white block">Riesgo Medio (Clúster 1)</span>
+                <span class="text-slate-400 text-[10px]">Estructura delictiva moderada o focalizada.</span>
+              </div>
+              <div class="p-3 rounded bg-madridRed/10 border border-madridRed/20 text-center">
+                <span class="font-bold text-white block">Riesgo Alto (Clúster 2)</span>
+                <span class="text-slate-400 text-[10px]">Meses críticos con alta exposición.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 bg-cyberDark/60 rounded-xl border border-navyTech flex items-center justify-between flex-col md:flex-row space-y-4 md:space-y-0">
+            <div>
+              <h3 class="text-base font-bold text-white uppercase tracking-wider">Proyecto de Investigación Académico</h3>
+              <p class="text-xs text-slate-400 font-mono mt-1">SENA Cundinamarca | 2025</p>
+            </div>
+            <a href="dataset_seguridad_sucio.csv" download class="px-5 py-3 bg-navyTech/40 border border-navyTech hover:bg-navyTech text-white font-bold text-xs uppercase rounded-lg transition-all flex items-center space-x-2">
+              <i data-lucide="download" class="w-4 h-4 text-neonGreen"></i>
+              <span>Descargar Dataset Sucio (.csv)</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-xs text-slate-500 font-mono tracking-wider border-t border-navyTech/40 pt-4">
+      SENA · Proyecto de Investigación sobre Seguridad Ciudadana · Sabana Occidente, Cundinamarca © 2025
+    </footer>
+
+  </main>
+
+  <!-- Core JavaScript Scripts -->
+  <!-- Leaflet JS for Real Map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
