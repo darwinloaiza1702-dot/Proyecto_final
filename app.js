@@ -29,6 +29,7 @@ let menuToggle = document.getElementById('menu-toggle');
 
   // Trigger default municipality on map
   selectMunicipality('Funza');
+  initLeafletMap();
 });
 
 // Navigation Controller (Tab Switching)
