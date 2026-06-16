@@ -6,8 +6,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Lucide Icons
   lucide.createIcons();
 
-  // Initialize Real Leaflet Map
-  initLeafletMap();
+let menuToggle = document.getElementById('menu-toggle');
+  let sidebar = document.getElementById('sidebar');
+  // Toggle sidebar on mobile hamburger click
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+    });
+  }
+
+  // Close sidebar when a navigation button is clicked (mobile only)
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.innerWidth < 640) { // sm breakpoint (640px)
+        sidebar.classList.add('-translate-x-full');
+      }
+    });
+  });
 
   // Set default active tab
   switchView('view-inicio');
